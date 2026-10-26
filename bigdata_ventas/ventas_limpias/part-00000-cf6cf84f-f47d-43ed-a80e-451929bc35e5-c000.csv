@@ -1,0 +1,11 @@
+id_venta,fecha,producto,categoria,ciudad,cantidad,precio,ingresos
+1,2026-10-01,Arroz,Alimentos,Sincelejo,10,2500,25000
+4,2026-10-02,Jabon,Aseo,Ovejas,12,3000,36000
+2,2026-10-01,Aceite,Alimentos,Corozal,5,8000,40000
+5,2026-10-03,Leche,Alimentos,Corozal,15,4000,60000
+9,2026-10-05,Leche,Alimentos,Ovejas,10,4000,40000
+7,2026-10-04,Aceite,Alimentos,Sincelejo,7,8000,56000
+10,2026-10-05,Arroz,Alimentos,Corozal,14,2500,35000
+8,2026-10-04,Jabon,Aseo,Corozal,9,3000,27000
+6,2026-10-03,Arroz,Alimentos,Ovejas,20,2500,50000
+3,2026-10-02,Arroz,Alimentos,Sincelejo,8,2500,20000
