@@ -1,79 +1,98 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, sum as spark_sum
 
-# Crear la sesión de Spark
-spark = SparkSession.builder \
-    .appName("AnalisisVentas") \
-    .master("local[*]") \
+# =====================================================
+# 1. CREAR SESION DE SPARK
+# =====================================================
+
+spark = (
+    SparkSession.builder
+    .appName("ProcesamientoBatchVentas")
+    .master("local[*]")
     .getOrCreate()
+)
 
 spark.sparkContext.setLogLevel("ERROR")
 
-# Leer los datos de ventas
-ventas = spark.read.csv(
-    "ventas.csv",
+# =====================================================
+# 2. CARGAR LOS DATOS LIMPIOS
+# =====================================================
+
+df = spark.read.csv(
+    "ventas_limpias",
     header=True,
     inferSchema=True
 )
 
-# Calcular los ingresos por venta
-ventas = ventas.withColumn(
-    "ingresos",
-    col("cantidad") * col("precio")
-)
+print("\n=== DATOS LIMPIOS ===")
+df.show(truncate=False)
 
-print("\n=== DATOS DE VENTAS ===")
-ventas.show(truncate=False)
+print("\n=== TOTAL DE REGISTROS ANALIZADOS ===")
+print("Total de registros:", df.count())
 
-# Calcular los ingresos totales
-print("\n=== INGRESOS TOTALES ===")
-ventas.select(
-    spark_sum("ingresos").alias("ingresos_totales")
-).show()
+# =====================================================
+# 3. INGRESOS POR PRODUCTO
+# =====================================================
 
-# Ventas por producto
 print("\n=== INGRESOS POR PRODUCTO ===")
-ventas.groupBy("producto").agg(
+
+df.groupBy("producto").agg(
     spark_sum("ingresos").alias("ingresos_totales")
 ).orderBy(
     col("ingresos_totales").desc()
 ).show()
 
-# Ventas por ciudad
+# =====================================================
+# 4. INGRESOS POR CIUDAD
+# =====================================================
+
 print("\n=== INGRESOS POR CIUDAD ===")
-ventas.groupBy("ciudad").agg(
+
+df.groupBy("ciudad").agg(
     spark_sum("ingresos").alias("ingresos_totales")
 ).orderBy(
     col("ingresos_totales").desc()
 ).show()
 
-# Ventas por categoría
+# =====================================================
+# 5. INGRESOS POR CATEGORIA
+# =====================================================
+
 print("\n=== INGRESOS POR CATEGORIA ===")
-ventas.groupBy("categoria").agg(
+
+df.groupBy("categoria").agg(
     spark_sum("ingresos").alias("ingresos_totales")
 ).orderBy(
     col("ingresos_totales").desc()
 ).show()
 
-# Guardar los resultados
-ventas.groupBy("producto").agg(
+# =====================================================
+# 6. GUARDAR LOS RESULTADOS
+# =====================================================
+
+df.groupBy("producto").agg(
     spark_sum("ingresos").alias("ingresos_totales")
 ).write.mode("overwrite").option(
     "header", True
 ).csv("resultados_productos")
 
-ventas.groupBy("ciudad").agg(
+df.groupBy("ciudad").agg(
     spark_sum("ingresos").alias("ingresos_totales")
 ).write.mode("overwrite").option(
     "header", True
 ).csv("resultados_ciudades")
 
-ventas.groupBy("categoria").agg(
+df.groupBy("categoria").agg(
     spark_sum("ingresos").alias("ingresos_totales")
 ).write.mode("overwrite").option(
     "header", True
 ).csv("resultados_categorias")
 
-print("\nAnalisis finalizado. Resultados guardados correctamente.")
+print("\nProcesamiento batch finalizado correctamente.")
+print("Los resultados se guardaron en sus respectivas carpetas.")
+
+# =====================================================
+# 7. CERRAR SPARK
+# =====================================================
 
 spark.stop()
